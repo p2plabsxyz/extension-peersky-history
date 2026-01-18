@@ -1,51 +1,375 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
-<title>Agregore History Viewer</title>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>Peersky History Viewer</title>
+    
+    <style>
+        @import url("browser://theme/vars.css");
+        @import url("browser://theme/themes.css");
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<meta charset="utf-8">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: var(--browser-theme-background);
+            color: var(--browser-theme-text-color);
+            padding: 2rem;
+            min-height: 100vh;
+        }
 
-<style>
-    @import url("agregore://theme/style.css");
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
 
-    #searchForm {
-        display: flex;
-    }
+        header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
 
-    #searchInput {
-        flex: 1;
-    }
-</style>
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--browser-theme-primary-highlight), var(--browser-theme-secondary-highlight));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-<script src="idb.min.js"></script>
-<script src="view.js" type="module"></script>
-<H1>History</H1>
-<form id="searchForm">
-    <input id="searchInput" name="search" type="search" placeholder="agregore docs example" title="Search terms here">
-</form>
-<hr>
-<table>
-    <thead>
-        <tr>
-            <th>Actions</th>
-            <th>Title</th>
-            <th>URL</th>
-        </tr>
-    </thead>
-    <tbody id="resultsContainer"></tbody>
-</table>
-<details>
-    <summary>How to search:</summary>
-    <p>
-        You can search through your history using "fuzzy matching".
-    </p>
-    <p>
-        Don't worry about capitals and just match letters or starts of words with spaces in between.
-    </p>
-    <p>
-        The search is done on latest entries first and will match against the URL + page title.
-    </p>
-</details>
+        .subtitle {
+            color: var(--settings-text-secondary);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Search Form Styles */
+        #searchForm {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--settings-card-bg);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--settings-border);
+            transition: border-color 0.3s ease;
+        }
+
+        #searchForm:focus-within {
+            border-color: var(--browser-theme-primary-highlight);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        #searchInput {
+            flex: 1;
+            padding: 0.875rem 1.25rem;
+            font-size: 1rem;
+            background: var(--peersky-background-url-input);
+            color: var(--browser-theme-text-color);
+            border: 2px solid var(--settings-border);
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #searchInput:focus {
+            border-color: var(--browser-theme-primary-highlight);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        #searchInput::placeholder {
+            color: var(--settings-text-secondary);
+            opacity: 0.6;
+        }
+
+        /* Results Counter */
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--settings-card-bg);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--settings-text-secondary);
+        }
+
+        .results-count {
+            font-weight: 600;
+            color: var(--browser-theme-primary-highlight);
+        }
+
+        /* Table Styles */
+        .table-container {
+            background: var(--settings-card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--settings-border);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: var(--peersky-nav-background);
+            border-bottom: 2px solid var(--settings-border);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--settings-text-secondary);
+        }
+
+        th:first-child {
+            width: 80px;
+            text-align: center;
+        }
+
+        th:nth-child(2) {
+            width: 35%;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid var(--settings-border);
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: var(--peersky-nav-background);
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        td {
+            padding: 1rem;
+            font-size: 0.9rem;
+        }
+
+        td:first-child {
+            text-align: center;
+        }
+
+        /* Delete Button */
+        .delete-btn {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.25rem;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            filter: grayscale(0.3);
+        }
+
+        .delete-btn:hover {
+            background: var(--settings-danger-color);
+            transform: scale(1.1);
+            filter: grayscale(0);
+        }
+
+        /* Link Styles */
+        a {
+            color: var(--browser-theme-primary-highlight);
+            text-decoration: none;
+            transition: color 0.2s ease;
+            word-break: break-all;
+        }
+
+        a:hover {
+            color: var(--browser-theme-secondary-highlight);
+            text-decoration: underline;
+        }
+
+        /* Help Section */
+        .help-section {
+            background: var(--settings-card-bg);
+            border: 2px solid var(--settings-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .help-section summary {
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--browser-theme-text-color);
+            list-style: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            user-select: none;
+        }
+
+        .help-section summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .help-section summary::before {
+            content: '▶';
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+            color: var(--browser-theme-primary-highlight);
+        }
+
+        .help-section[open] summary::before {
+            transform: rotate(90deg);
+        }
+
+        .help-section p {
+            margin-top: 1rem;
+            line-height: 1.6;
+            color: var(--settings-text-secondary);
+        }
+
+        .help-section ul {
+            margin-top: 0.5rem;
+            margin-left: 1.5rem;
+            color: var(--settings-text-secondary);
+        }
+
+        .help-section li {
+            margin: 0.5rem 0;
+            line-height: 1.6;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--settings-text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--browser-theme-text-color);
+        }
+
+        .empty-state-text {
+            font-size: 1rem;
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--settings-border);
+            border-radius: 50%;
+            border-top-color: var(--browser-theme-primary-highlight);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            th:nth-child(2),
+            td:nth-child(2) {
+                display: none;
+            }
+
+            #searchForm {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 Peersky History</h1>
+            <p class="subtitle">Search and manage your browsing history</p>
+        </header>
+
+        <form id="searchForm">
+            <input 
+                id="searchInput" 
+                name="search" 
+                type="search" 
+                placeholder="🔍 Search history... (e.g., peersky docs example)" 
+                title="Search terms here"
+                autocomplete="off"
+            >
+        </form>
+
+        <div class="results-info">
+            <span>Showing <span class="results-count" id="resultsCount">0</span> results</span>
+            <span id="searchStatus"></span>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Actions</th>
+                        <th>Title</th>
+                        <th>URL</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsContainer">
+                    <!-- Results will be inserted here -->
+                </tbody>
+            </table>
+        </div>
+
+        <details class="help-section">
+            <summary>💡 How to search</summary>
+            <p>
+                You can search through your history using <strong>fuzzy matching</strong>.
+            </p>
+            <ul>
+                <li>Don't worry about capitals - search is case-insensitive</li>
+                <li>Match letters or starts of words with spaces in between</li>
+                <li>The search is done on latest entries first</li>
+                <li>Results match against both URL and page title</li>
+            </ul>
+            <p style="margin-top: 1rem;">
+                <strong>Examples:</strong><br>
+                • "peersky docs" → matches "Peersky Documentation"<br>
+                • "github repo" → matches GitHub repository URLs
+            </p>
+        </details>
+    </div>
+
+    <script src="idb.min.js"></script>
+    <script src="view.js" type="module"></script>
+</body>
+</html>

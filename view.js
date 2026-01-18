@@ -43,31 +43,92 @@ function devouncedSearch () {
 
 async function searchAndRender () {
   const searchTerm = searchInput.value.trim() || ' .*'
+  const resultsCountEl = document.getElementById('resultsCount')
+  const searchStatusEl = document.getElementById('searchStatus')
+  
+  // Show loading state
   resultsContainer.innerHTML = ''
-  for await (const { url, host, pathname, title, id } of search(searchTerm)) {
-    const tr = document.createElement('tr')
-    const sanitizedTitle = sanitizeHTML(title)
-    const sanitizedURL = sanitizeHTML(host) + sanitizeHTML(pathname.slice(0, 32))
-    tr.innerHTML = `
-        <td>
-          <button title="Delete this item">❌</button>
-        </td>
-        <td title="${sanitizedTitle}">${sanitizedTitle.slice(0, 32)}</td>
-        <td>
-          <a href="${new URL(url).href}">${sanitizedURL}</a>
-        </td>
-    `
-    tr.querySelector('button').onclick = () => {
-      deleteHistoryItem(id)
+  searchStatusEl.innerHTML = '<span class="loading"></span>'
+  resultsCountEl.textContent = '0'
+  
+  let count = 0
+  let hasResults = false
+  
+  try {
+    for await (const { url, host, pathname, title, id } of search(searchTerm)) {
+      hasResults = true
+      count++
+      
+      const tr = document.createElement('tr')
+      const sanitizedTitle = sanitizeHTML(title)
+      const sanitizedURL = sanitizeHTML(host) + sanitizeHTML(pathname.slice(0, 64))
+      
+      tr.innerHTML = `
+          <td>
+            <button class="delete-btn" title="Delete this item">❌</button>
+          </td>
+          <td title="${sanitizedTitle}">${sanitizedTitle.slice(0, 48)}</td>
+          <td>
+            <a href="${new URL(url).href}" target="_blank">${sanitizedURL}</a>
+          </td>
+      `
+      
+      const deleteBtn = tr.querySelector('.delete-btn')
+      deleteBtn.onclick = async () => {
+        if (confirm('Are you sure you want to delete this history item?')) {
+          await deleteHistoryItem(id)
+          tr.remove()
+          count--
+          resultsCountEl.textContent = count
+          
+          // Show empty state if no results left
+          if (count === 0) {
+            showEmptyState(searchTerm)
+          }
+        }
+      }
+      
+      resultsContainer.appendChild(tr)
+      resultsCountEl.textContent = count
     }
-    resultsContainer.appendChild(tr)
+    
+    // Clear loading state
+    searchStatusEl.innerHTML = ''
+    
+    // Show empty state if no results
+    if (!hasResults) {
+      showEmptyState(searchTerm)
+    }
+  } catch (error) {
+    console.error('Search error:', error)
+    searchStatusEl.innerHTML = '<span style="color: var(--settings-danger-color);">⚠️ Error loading results</span>'
   }
 }
 
+function showEmptyState(searchTerm) {
+  resultsContainer.innerHTML = `
+    <tr>
+      <td colspan="3">
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-title">No history found</div>
+          <div class="empty-state-text">
+            ${searchTerm.trim() ? `No results match "${sanitizeHTML(searchTerm)}"` : 'Your browsing history is empty'}
+          </div>
+        </div>
+      </td>
+    </tr>
+  `
+}
+
 async function deleteHistoryItem (id) {
-  console.log('Deleting', id)
-  await db.delete(HISTORY_STORE, id)
-  searchAndRender()
+  console.log('Deleting history item:', id)
+  try {
+    await db.delete(HISTORY_STORE, id)
+  } catch (error) {
+    console.error('Error deleting item:', error)
+    alert('Failed to delete history item. Please try again.')
+  }
 }
 
 const sanitizeItem = document.createElement('span')

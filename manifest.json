@@ -1,13 +1,17 @@
 {
-	"manifest_version": 2,
-	"name": "agregore-history",
-	"version": "2.0.1",
-	"description": "The history tracking functionality for the Agregore Browser",
+	"manifest_version": 3,
+	"name": "peersky-history",
+	"version": "3.0.0",
+	"description": "The history tracking functionality for the Peersky Browser",
 	"permissions": [
-		"webNavigation"
+		"webNavigation",
+		"tabs"
 	],
 	"background": {
-		"page": "background.html"
+		"service_worker": "background.js"
+	},
+	"action": {
+		"default_title": "Peersky History"
 	},
 	"options_page": "view.html"
 }
