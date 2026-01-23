@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-    <title>Peersky History Viewer</title>
+    <title>Peersky History</title>
     
     <style>
         @import url("browser://theme/vars.css");
@@ -37,10 +37,8 @@
         }
 
         h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
             margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, var(--browser-theme-primary-highlight), var(--browser-theme-secondary-highlight));
+            background: var(--browser-theme-text-color);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -58,9 +56,9 @@
             gap: 1rem;
             margin-bottom: 2rem;
             background: var(--settings-card-bg);
-            padding: 1.5rem;
-            border-radius: 12px;
-            border: 2px solid var(--settings-border);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--settings-border);
             transition: border-color 0.3s ease;
         }
 
@@ -71,12 +69,12 @@
 
         #searchInput {
             flex: 1;
-            padding: 0.875rem 1.25rem;
+            padding: 0.639rem 1rem;
             font-size: 1rem;
             background: var(--peersky-background-url-input);
             color: var(--browser-theme-text-color);
-            border: 2px solid var(--settings-border);
-            border-radius: 8px;
+            border: 1px solid var(--settings-border);
+            border-radius: 6px;
             outline: none;
             transition: all 0.3s ease;
         }
@@ -99,7 +97,7 @@
             margin-bottom: 1rem;
             padding: 0.75rem 1rem;
             background: var(--settings-card-bg);
-            border-radius: 8px;
+            border-radius: 6px;
             font-size: 0.9rem;
             color: var(--settings-text-secondary);
         }
@@ -112,9 +110,9 @@
         /* Table Styles */
         .table-container {
             background: var(--settings-card-bg);
-            border-radius: 12px;
+            border-radius: 8px;
             overflow: hidden;
-            border: 2px solid var(--settings-border);
+            border: 1px solid var(--settings-border);
             margin-bottom: 2rem;
         }
 
@@ -125,7 +123,7 @@
 
         thead {
             background: var(--peersky-nav-background);
-            border-bottom: 2px solid var(--settings-border);
+            border-bottom: 1px solid var(--settings-border);
         }
 
         th {
@@ -200,58 +198,6 @@
             text-decoration: underline;
         }
 
-        /* Help Section */
-        .help-section {
-            background: var(--settings-card-bg);
-            border: 2px solid var(--settings-border);
-            border-radius: 12px;
-            padding: 1.5rem;
-        }
-
-        .help-section summary {
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 1rem;
-            color: var(--browser-theme-text-color);
-            list-style: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            user-select: none;
-        }
-
-        .help-section summary::-webkit-details-marker {
-            display: none;
-        }
-
-        .help-section summary::before {
-            content: '▶';
-            font-size: 0.8rem;
-            transition: transform 0.3s ease;
-            color: var(--browser-theme-primary-highlight);
-        }
-
-        .help-section[open] summary::before {
-            transform: rotate(90deg);
-        }
-
-        .help-section p {
-            margin-top: 1rem;
-            line-height: 1.6;
-            color: var(--settings-text-secondary);
-        }
-
-        .help-section ul {
-            margin-top: 0.5rem;
-            margin-left: 1.5rem;
-            color: var(--settings-text-secondary);
-        }
-
-        .help-section li {
-            margin: 0.5rem 0;
-            line-height: 1.6;
-        }
-
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -281,7 +227,7 @@
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid var(--settings-border);
+            border: 2px solid var(--settings-border);
             border-radius: 50%;
             border-top-color: var(--browser-theme-primary-highlight);
             animation: spin 0.8s linear infinite;
@@ -315,8 +261,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌐 Peersky History</h1>
-            <p class="subtitle">Search and manage your browsing history</p>
+            <h1>History</h1>
         </header>
 
         <form id="searchForm">
@@ -324,7 +269,7 @@
                 id="searchInput" 
                 name="search" 
                 type="search" 
-                placeholder="🔍 Search history... (e.g., peersky docs example)" 
+                placeholder="🔍 Search history..." 
                 title="Search terms here"
                 autocomplete="off"
             >
@@ -349,24 +294,6 @@
                 </tbody>
             </table>
         </div>
-
-        <details class="help-section">
-            <summary>💡 How to search</summary>
-            <p>
-                You can search through your history using <strong>fuzzy matching</strong>.
-            </p>
-            <ul>
-                <li>Don't worry about capitals - search is case-insensitive</li>
-                <li>Match letters or starts of words with spaces in between</li>
-                <li>The search is done on latest entries first</li>
-                <li>Results match against both URL and page title</li>
-            </ul>
-            <p style="margin-top: 1rem;">
-                <strong>Examples:</strong><br>
-                • "peersky docs" → matches "Peersky Documentation"<br>
-                • "github repo" → matches GitHub repository URLs
-            </p>
-        </details>
     </div>
 
     <script src="idb.min.js"></script>
