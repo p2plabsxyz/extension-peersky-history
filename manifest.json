@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "peersky-history",
-	"version": "3.0.0",
+	"version": "1.1.0",
 	"description": "The history tracking functionality for the Peersky Browser",
 	"permissions": [
 		"webNavigation",

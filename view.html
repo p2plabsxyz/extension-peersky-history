@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" href="peersky://static/assets/favicon.ico" />
     <title>Peersky History</title>
     
     <style>
@@ -107,6 +108,78 @@
             color: var(--browser-theme-primary-highlight);
         }
 
+        .history-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--settings-card-bg);
+            border-radius: 6px;
+            border: 1px solid var(--settings-border);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--settings-text-secondary);
+            font-size: 0.9rem;
+        }
+
+        #timeFilter {
+            padding: 0.5rem 0.75rem;
+            background: var(--peersky-background-url-input);
+            color: var(--browser-theme-text-color);
+            border: 1px solid var(--settings-border);
+            border-radius: 6px;
+            outline: none;
+        }
+
+        #timeFilter:focus {
+            border-color: var(--browser-theme-primary-highlight);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .action-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            border: 1px solid var(--settings-border);
+            background: var(--peersky-nav-background);
+            color: var(--browser-theme-text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .action-btn:hover {
+            border-color: var(--browser-theme-primary-highlight);
+            color: var(--browser-theme-primary-highlight);
+        }
+
+        .danger-btn {
+            border-color: var(--settings-danger-color);
+            color: var(--settings-danger-color);
+            background: transparent;
+        }
+
+        .danger-btn:hover {
+            background: var(--settings-danger-color);
+            color: #fff;
+        }
+
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         /* Table Styles */
         .table-container {
             background: var(--settings-card-bg);
@@ -127,7 +200,7 @@
         }
 
         th {
-            padding: 1rem;
+            padding: 0.5rem;
             text-align: left;
             font-weight: 600;
             font-size: 0.875rem;
@@ -159,7 +232,7 @@
         }
 
         td {
-            padding: 1rem;
+            padding: 0.5rem;
             font-size: 0.9rem;
         }
 
@@ -278,6 +351,22 @@
         <div class="results-info">
             <span>Showing <span class="results-count" id="resultsCount">0</span> results</span>
             <span id="searchStatus"></span>
+        </div>
+
+        <div class="history-controls">
+            <div class="filter-group">
+                <label for="timeFilter">Time</label>
+                <select id="timeFilter">
+                    <option value="all">All time</option>
+                    <option value="day">Last 24 hours</option>
+                    <option value="week">Last 7 days</option>
+                    <option value="month">Last 30 days</option>
+                </select>
+            </div>
+            <div class="action-group">
+                <button type="button" id="deleteRangeBtn" class="action-btn danger-btn">Delete Period</button>
+                <button type="button" id="deleteAllBtn" class="action-btn danger-btn">Delete All</button>
+            </div>
         </div>
 
         <div class="table-container">

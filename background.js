@@ -12,7 +12,18 @@ const HISTORY_VERSION = 1;
 const HISTORY_STORE = 'navigated';
 const MAX_RESULTS = 8;
 
-const FORBIDDEN_PROTOCOLS = ['peersky:', 'chrome-extension:', 'devtools:'];
+const FORBIDDEN_PROTOCOLS = [
+  'peersky:',
+  'browser:',
+  'chrome-extension:',
+  'chrome:',
+  'devtools:',
+  'file:',
+  'about:',
+  'view-source:',
+  'data:',
+  'blob:'
+];
 
 main();
 
@@ -80,9 +91,9 @@ async function main() {
     const tab = await getTab(tabId);
     const { url, title } = tab;
 
-    const { host, protocol, pathname } = new URL(url);
-
-    if (FORBIDDEN_PROTOCOLS.includes(protocol)) return console.debug('Skipping saving', url);
+    const parsedUrl = parseUrlSafe(url);
+    if (shouldSkipUrl(parsedUrl)) return;
+    const { host, protocol, pathname } = parsedUrl;
 
     const historyItem = {
       host,
@@ -124,4 +135,17 @@ async function getTab (id) {
 
 async function delay (ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parseUrlSafe (rawUrl) {
+  try {
+    return new URL(rawUrl);
+  } catch (error) {
+    return null;
+  }
+}
+
+function shouldSkipUrl (parsedUrl) {
+  if (!parsedUrl) return true;
+  return FORBIDDEN_PROTOCOLS.includes(parsedUrl.protocol);
 }
