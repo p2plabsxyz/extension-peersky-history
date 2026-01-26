@@ -2,6 +2,12 @@
 
 Peersky's history tracking web extension (Manifest V3). History is stored locally in IndexedDB.
 
+<div align="center">
+    <img src="/demo.png" width="639" alt="A demo screenshot of PeerSky's history viewer">
+</div>
+
+> 🎉 Credit: https://github.com/AgregoreWeb/extension-agregore-history
+
 ## Features
 
 - Automatic tracking of all web navigation
