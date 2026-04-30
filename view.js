@@ -1,14 +1,26 @@
 /* global idb, IDBKeyRange, AbortController, searchForm, searchInput, resultsContainer */
 
 const HISTORY_DB = 'history'
-const HISTORY_VERSION = 1
+const HISTORY_VERSION = 2
 
 const HISTORY_STORE = 'navigated'
 const MAX_RESULTS = 256
 
 const SEARCH_DELAY = 100
 
-const db = await idb.openDB(HISTORY_DB, HISTORY_VERSION)
+const db = await idb.openDB(HISTORY_DB, HISTORY_VERSION, {
+  upgrade (db) {
+    if (!db.objectStoreNames.contains(HISTORY_STORE)) {
+      const store = db.createObjectStore(HISTORY_STORE, { keyPath: 'id', autoIncrement: true })
+      store.createIndex('search', 'search', { unique: false })
+      store.createIndex('timestamp', 'timestamp', { unique: false })
+      store.createIndex('url', 'url', { unique: false })
+      store.createIndex('title', 'title', { unique: false })
+      store.createIndex('host', 'host', { unique: false })
+      store.createIndex('protocol', 'protocol', { unique: false })
+    }
+  }
+})
 
 let aborter = null
 
