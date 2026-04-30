@@ -7,7 +7,7 @@ if (!globalThis.browser) globalThis.browser = chrome;
 
 const TAB_CHECK_DELAY = 100;
 const HISTORY_DB = 'history';
-const HISTORY_VERSION = 1;
+const HISTORY_VERSION = 2;
 
 const HISTORY_STORE = 'navigated';
 const MAX_RESULTS = 8;
@@ -112,6 +112,8 @@ async function main() {
 }
 
 async function upgrade (db) {
+  if (db.objectStoreNames.contains(HISTORY_STORE)) return;
+
   const store = db.createObjectStore(HISTORY_STORE, {
     // The 'id' property of the object will be the key.
     keyPath: 'id',
